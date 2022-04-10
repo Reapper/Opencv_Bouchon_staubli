@@ -10,21 +10,28 @@ import sys
 import time
 
 
-# def colorName2Bin(colorName):
-#     if (colorName == "Red"):
-#         return f'{0xFF0000:0>24b}'
-#     elif(colorName == "Green"):
-#         return f'{0x00FF00:0>24b}'
-#     elif(colorName == "Blue"):
-#         return f'{0x0000FF:0>24b}'
-#     elif(colorName == "Orange"):
-#         return f'{0xFF7F00:0>24b}'
+#################################################
 
 class MorphType():
     ERODE = 0
     DILATE = 1
     OPEN = 2
     CLOSE = 3
+
+#################################################
+
+
+def colorName2Bin(colorName):
+    if (colorName == "Red"):
+        return f'{0xFF0000:0>24b}'
+    elif(colorName == "Green"):
+        return f'{0x00FF00:0>24b}'
+    elif(colorName == "Blue"):
+        return f'{0x0000FF:0>24b}'
+    elif(colorName == "Orange"):
+        return f'{0xFF7F00:0>24b}'
+
+#################################################
 
 
 def MorphOp(imageSource,
@@ -88,6 +95,33 @@ def create_pattern_and_mask(width, height, d1, d2, bgr_color_center=(0, 0, 0), b
               -1)
 
     return image, mask
+
+#################################################
+
+
+def processImage(image):
+    templ = cv.imread('template_bouchon_mm.png')
+    mask = cv.imread('template_mask_bouchon_mm.png')
+    print("templ:"+str(templ))
+    print("mask:"+str(mask))
+
+    # recherche du motif dans l'image rectifiée
+    dst = image
+    trouve = 1
+
+    # dst = cv.matchTemplate(image, mask, cv.TM_CCOEFF)
+    # affichage de cercles
+    x = 100
+    y = 80
+    d1 = 32
+    d2 = 22
+    dst = cv.circle(
+        dst, ((int)(x+templ.shape[0]/2), int(y+templ.shape[1]/2)), int(d1/2), (0, 255, 0))
+    dst = cv.circle(
+        dst, ((int)(x+templ.shape[0]/2), int(y+templ.shape[1]/2)), int(d2/2), (0, 255, 0))
+
+    return (dst, trouve, x, y)
+
 #################################################
 
 
@@ -119,7 +153,6 @@ templ, mask = create_pattern_and_mask(
 
 cv.imwrite('template_bouchon_mm.png', templ)
 cv.imwrite('template_mask_bouchon_mm.png', mask)
-####################################################
 
 for i in range(1, 7):
     positonBouchon = []
@@ -152,4 +185,13 @@ for i in range(1, 7):
     cv.imshow("res", img_rgb)
     cv.waitKey(0)
     print(i)
+
+
+for i in range(1, 7):
+    image = cv.imread(f'imgs/fetch%s.jpeg' % i)
+    dst, trouve, x, y = processImage(image)
+    # sauvgarde image avec surimpression
+    cv.imwrite('imabouchon1_rect_trouve.jpg', dst)
+    cv.imshow("image", dst)
+    key = cv.waitKey(0)
 cv.destroyAllWindows()

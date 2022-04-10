@@ -1,5 +1,6 @@
 #!/bin/python3
 
+from enum import Enum
 import cv2 as cv
 from cv2 import IMREAD_UNCHANGED
 from cv2 import IMREAD_GRAYSCALE
